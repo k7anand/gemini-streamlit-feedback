@@ -1,1 +1,3 @@
 Resume Reality Check is a Streamlit-based application that leverages Google Gemini to evaluate certain resume sections (such as summary, experience, and skills), compute an overall match score and explain why that score was assigned (Explainable AI), highlight candidate strengths and identify missing skills, provide actionable suggestions, and generate targeted interview questions.
+
+The system transforms unstructured LLM outputs into structured, user-friendly insights though careful prompting and parsing. 
