@@ -63,6 +63,12 @@ if "questions" not in st.session_state:
 if "show_questions" not in st.session_state:
     st.session_state.show_questions = False
 
+if "learning_plan" not in st.session_state:
+    st.session_state.learning_plan = None
+
+if "show_learning_plan" not in st.session_state:
+    st.session_state.show_learning_plan = False
+
 # Load environment variables:
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
@@ -123,6 +129,10 @@ job_information = f"{job_title}\n{job_description}"
 
 # Analyze Resume Button:
 if st.button("Analyze Resume"):
+    st.session_state.questions = None
+    st.session_state.learning_plan = None
+    st.session_state.show_questions = False
+    st.session_state.show_learning_plan = False
 
     current_time = time.time()
 
@@ -228,6 +238,7 @@ if st.button("Analyze Resume"):
 
 if st.session_state.analysis_result:
     parsed = parse_analysis(st.session_state.analysis_result)
+    st.session_state.parsed = parsed
     label, color = get_match_label_and_color(parsed["overall"])
 
     st.markdown("---")
@@ -239,7 +250,7 @@ if st.session_state.analysis_result:
     col1.metric("Summary", parsed["summary"])
     col2.metric("Experience", parsed["experience"])
     col3.metric("Skills", parsed["skills"])
-    col4.markdown(f"<h4>Overall Match</h4><h2 style='color:{color};'>{parsed['overall']}</h2>", unsafe_allow_html = True)
+    col4.metric("Overall Match", parsed["overall"])
 
     st.markdown("---")
     st.subheader("Why This Overall Score")
@@ -263,9 +274,19 @@ if st.session_state.analysis_result:
 
 
 if st.session_state.analysis_result:
-    if st.button("Generate Interview Questions"):
-        st.session_state.show_questions = True
-        st.session_state.questions = None
+    st.markdown("---")
+    st.markdown("### Next Steps")
+    col_q, col_lp = st.columns(2)
+
+    with col_q:
+        if st.button("Generate Interview Questions", key = "gen_q"):
+            st.session_state.show_questions = True
+            st.session_state.questions = None
+
+    with col_lp:
+        if st.button("Make Lesson Plan", key = "gen_lp"):
+            st.session_state.show_learning_plan = True
+            st.session_state.learning_plan = None
 
     if st.session_state.show_questions and st.session_state.questions is None:
         questions_prompt = f"""You are an expert interviewer.
@@ -303,11 +324,51 @@ if st.session_state.analysis_result:
 
         except Exception as e:
             st.error(f"Error: {e}")
+
+
+    if st.session_state.show_learning_plan and st.session_state.learning_plan is None:
+        parsed = st.session_state.parsed
+
+        lesson_prompt = f"""You are an expert career coach.
+
+        Based on the missing skills below, create a structured and clearly separated learning plan for each skill.
+
+        For EACH skill listed, create a clearly separated section with:
+        - What to learn (key concepts, tools, frameworks)
+        - How to learn it (online courses, practice strategies, certifications)
+        - A small project idea to apply the skill
+
+        Please keep it practical, concise, and actionable.
+
+        Missing Skills:
+        {parsed["missing"]}
+
+        Job Title:
+        {job_title}
+        """
+
+        try:
+            if not parsed["missing"].strip():
+                st.warning("No missing skills detected. Learning plan not generated.")
+            else:
+                with st.spinner("Creating learning plan..."):
+                    response_lp = model.generate_content(lesson_prompt)
+
+                st.session_state.learning_plan = response_lp.text
+
+        except Exception as e:
+            st.error(f"Error: {e}")
+        
             
     if st.session_state.questions:
         st.markdown("---")
-        st.subheader("Interview Questions")
-        st.write(st.session_state.questions)
+        st.markdown("### Interview Questions")
+        st.markdown(st.session_state.questions)
 
         if st.button("Refresh Questions"):
             st.session_state.questions = None
+
+    if st.session_state.learning_plan:
+        st.markdown("---")
+        st.markdown("### Skill Learning Plan")
+        st.markdown(st.session_state.learning_plan)
