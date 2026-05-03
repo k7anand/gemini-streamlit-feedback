@@ -293,14 +293,16 @@ if st.session_state.analysis_result:
     col_q, col_lp = st.columns(2)
 
     with col_q:
-        if st.button("Generate Interview Questions", key = "gen_q"):
-            st.session_state.show_questions = True
-            st.session_state.questions = None
+        if not st.session_state.show_questions:
+            if st.button("Generate Interview Questions", key = "gen_q"):
+                st.session_state.show_questions = True
+                st.session_state.questions = None
 
     with col_lp:
-        if st.button("Make Lesson Plan", key = "gen_lp"):
-            st.session_state.show_learning_plan = True
-            st.session_state.learning_plan = None
+        if not st.session_state.show_learning_plan:
+            if st.button("Make Lesson Plan", key = "gen_lp"):
+                st.session_state.show_learning_plan = True
+                st.session_state.learning_plan = None
 
     if st.session_state.show_questions and st.session_state.questions is None:
         questions_prompt = f"""You are an expert interviewer.
@@ -375,14 +377,15 @@ if st.session_state.analysis_result:
         
             
     if st.session_state.questions:
-        st.markdown("---")
+        st.markdown("<br><br>", unsafe_allow_html = True)
         st.markdown("### Interview Questions")
+        st.caption("Interview questions are tailored to your profile. Click 'Refresh Questions' to explore more variations.")
         st.markdown(st.session_state.questions)
 
-        if st.button("Refresh Questions"):
+        if st.button("Refresh Questions", key = "refresh_q"):
             st.session_state.questions = None
 
     if st.session_state.learning_plan:
-        st.markdown("---")
+        st.markdown("<br><br>", unsafe_allow_html = True)
         st.markdown("### Skill Learning Plan")
         st.markdown(st.session_state.learning_plan)
