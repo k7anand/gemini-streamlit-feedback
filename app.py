@@ -51,6 +51,20 @@ def get_match_label_and_color(score: str or int) -> str:
         return "Needs Improvement", "red"
 
 
+def handle_api_error(e, context = ""):
+    """Acts as a centralized handler for API exceptions by detecting common failure modes such as rate limiting and
+    surfacing consistent, user-friendly messages in the UI, improving robustness and maintainability of API-dependent workflows."""
+    error_str = str(e).lower()
+
+    if "429" in error_str or "quota" in error_str:
+        st.warning(f"{context} is temporarily busy due to high demand. Please wait a moment and try again shortly.")
+    else:
+        if context:
+            st.error(f"Something went wrong while {context.lower()}. Please try again.")
+        else:
+            st.error("Something went wrong. Please try again.")
+
+
 if "last_api_call_time" not in st.session_state:
     st.session_state.last_api_call_time = 0
 
@@ -232,7 +246,7 @@ if st.button("Analyze Resume"):
         st.session_state.last_api_call_time = time.time()
         st.session_state.analysis_result = response.text
     except Exception as e:
-        st.error(f"Error: {e}")
+        handle_api_error(e, context = "Resume analysis")
 
 
 
@@ -323,7 +337,7 @@ if st.session_state.analysis_result:
             st.session_state.questions = response_q.text
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            handle_api_error(e, context = "Generating interview questions")
 
 
     if st.session_state.show_learning_plan and st.session_state.learning_plan is None:
@@ -357,7 +371,7 @@ if st.session_state.analysis_result:
                 st.session_state.learning_plan = response_lp.text
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            handle_api_error(e, context = "Creating learning plan")
         
             
     if st.session_state.questions:
