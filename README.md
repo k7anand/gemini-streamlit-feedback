@@ -11,7 +11,14 @@ Users can then proceed to the _Next Steps_ section to deepen their preparation. 
 
 This application is designed for students, early-career professionals, and job seekers looking to better understand how their experience aligns with specific roles and how to improve their positioning.
 
+## __Problem and Motivation__
+Many job seekers increasingly rely on general-purpose chatbots to evaluate their resumes against job descriptions. However, this process can be repetitive, time-consuming, and inconsistent. Users must repeatedly craft prompts, reformat inputs, and manually interpret unstructured responses for each application.
 
+This project addresses that inefficiency by providing a structured, guided workflow for resume evaluation. Instead of relying on ad-hoc prompting, the system standardizes how inputs are processed and how outputs are generated. This ensures consistency across evaluations and reduces the cognitive overhead to extract actionable insights.
+
+By transforming unstructured chatbot interactions into a repeatable pipeline, the application streamlines resume analysis, surfaces relevant skill gaps, and supports targeted preparation through interview questions and learning plans. The result is a more efficient and reliable approach to job preparation for candidates navigating multiple applications. 
+
+While several platforms provide AI-assisted resume feedback, these tools often abstract away how insights are generated. This project focuses on building a transparent, structured pipeline that demonstrates how LLMs can be orchestrated to produce consistent, interpretable, and actionable outputs. 
 
 ## __Architecture__
 This application is designed as a multi-stage AI pipeline that combines user input, large language model (LLM) inference, structured data extraction, and interactive visualization within a single Streamlit interface. The system flow is as follows:
