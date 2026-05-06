@@ -74,14 +74,11 @@ if "analysis_result" not in st.session_state:
 if "questions" not in st.session_state:
     st.session_state.questions = None
 
-if "show_questions" not in st.session_state:
-    st.session_state.show_questions = False
-
 if "learning_plan" not in st.session_state:
     st.session_state.learning_plan = None
 
-if "show_learning_plan" not in st.session_state:
-    st.session_state.show_learning_plan = False
+if "mode" not in st.session_state:
+    st.session_state.mode = None 
 
 # Load environment variables:
 load_dotenv()
@@ -145,8 +142,7 @@ job_information = f"{job_title}\n{job_description}"
 if st.button("Analyze Resume"):
     st.session_state.questions = None
     st.session_state.learning_plan = None
-    st.session_state.show_questions = False
-    st.session_state.show_learning_plan = False
+    st.session_state.mode = None
 
     current_time = time.time()
 
@@ -167,8 +163,7 @@ if st.button("Analyze Resume"):
         st.stop()
 
     
-    prompt = f"""You are an expert recruiter.
-    Analyze the candidate information against the job description.
+    prompt = f"""Analyze the candidate information against the job description.
 
     Follow ALL instructions strictly.
 
@@ -188,6 +183,12 @@ if st.button("Analyze Resume"):
     If the candidate appears to be a student or early-career:
     - Evaluate based on potential and relevance.
     - DO NOT heavily penalize lack of years of experience.
+
+    Domain Alignment Rule:
+    - Strongly evaluate whether the candidate’s domain aligns with the job role.
+    - In cases of major domain mismatch, the overall score should typically fall below 50.
+    - Transferable skills should NOT significantly increase the score when domain alignment is weak.
+    - Do not reward unrelated technical skills when the job domain is different.
 
     ---------------------------
     INPUT
@@ -237,7 +238,7 @@ if st.button("Analyze Resume"):
     - Do NOT include explanations outside this format.
     - Keep output clean and structured.
     """
-
+    
     try:
         with st.spinner("Analyzing..."):
             response = model.generate_content(prompt)
@@ -293,22 +294,23 @@ if st.session_state.analysis_result:
     col_q, col_lp = st.columns(2)
 
     with col_q:
-        if not st.session_state.show_questions:
+        if st.session_state.mode != "questions":
             if st.button("Generate Interview Questions", key = "gen_q"):
-                st.session_state.show_questions = True
+                st.session_state.mode = "questions"
                 st.session_state.questions = None
+                st.session_state.learning_plan = None
+                st.rerun()
 
     with col_lp:
-        if not st.session_state.show_learning_plan:
+        if st.session_state.mode != "learning":
             if st.button("Make Lesson Plan", key = "gen_lp"):
-                st.session_state.show_learning_plan = True
+                st.session_state.mode = "learning"
                 st.session_state.learning_plan = None
+                st.session_state.questions = None
+                st.rerun()
 
-    if st.session_state.show_questions and st.session_state.questions is None:
-        questions_prompt = f"""You are an expert interviewer.
-        Based on the candidate and job description:
-
-        Generate:
+    if st.session_state.mode == "questions" and st.session_state.questions is None:
+        questions_prompt = f"""Please generate:
         - 2 technical interview questions
         - 2 behavioral interview questions
 
@@ -317,7 +319,7 @@ if st.session_state.analysis_result:
         - relevant experience
         - job requirements
 
-        Generate different questions each time.
+        Generate different questions each time. Return ONLY the questions as bullet points. Do not include any introductions or additional explanations.
 
         Candidate Summary:
         {summary}
@@ -342,12 +344,10 @@ if st.session_state.analysis_result:
             handle_api_error(e, context = "Generating interview questions")
 
 
-    if st.session_state.show_learning_plan and st.session_state.learning_plan is None:
+    if st.session_state.mode == "learning" and st.session_state.learning_plan is None:
         parsed = st.session_state.parsed
 
-        lesson_prompt = f"""You are an expert career coach.
-
-        Based on the missing skills below, create a structured and clearly separated learning plan for each skill.
+        lesson_prompt = f"""Based on the missing skills below, create a structured and clearly separated learning plan for each skill.
 
         For EACH skill listed, create a clearly separated section with:
         - What to learn (key concepts, tools, frameworks)
@@ -355,6 +355,8 @@ if st.session_state.analysis_result:
         - A small project idea to apply the skill
 
         Please keep it practical, concise, and actionable.
+
+        Return ONLY the learning plan. Do not include any introductions or additional explanations.
 
         Missing Skills:
         {parsed["missing"]}
@@ -376,7 +378,7 @@ if st.session_state.analysis_result:
             handle_api_error(e, context = "Creating learning plan")
         
             
-    if st.session_state.questions:
+    if st.session_state.mode == "questions" and st.session_state.questions:
         st.markdown("<br><br>", unsafe_allow_html = True)
         st.markdown("### Interview Questions")
         st.caption("Interview questions are tailored to your profile. Click 'Refresh Questions' to explore more variations.")
@@ -384,8 +386,9 @@ if st.session_state.analysis_result:
 
         if st.button("Refresh Questions", key = "refresh_q"):
             st.session_state.questions = None
+            st.rerun()
 
-    if st.session_state.learning_plan:
+    if st.session_state.mode == "learning" and st.session_state.learning_plan:
         st.markdown("<br><br>", unsafe_allow_html = True)
         st.markdown("### Skill Learning Plan")
         st.markdown(st.session_state.learning_plan)
