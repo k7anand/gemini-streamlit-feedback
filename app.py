@@ -80,6 +80,22 @@ if "learning_plan" not in st.session_state:
 if "mode" not in st.session_state:
     st.session_state.mode = None 
 
+if "refresh_count" not in st.session_state:
+    st.session_state.refresh_count = 0
+
+
+def enforce_rate_limit():
+    now = time.time()
+    last = st.session_state.get("last_api_call_time", 0)
+
+    if now - last < 5:
+        st.warning("You're making requests too quickly. Please wait a few seconds and try again.")
+        return False
+
+    st.session_state.last_api_call_time = now
+    return True
+
+
 # Load environment variables:
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
@@ -143,16 +159,7 @@ if st.button("Analyze Resume"):
     st.session_state.questions = None
     st.session_state.learning_plan = None
     st.session_state.mode = None
-
-    current_time = time.time()
-
-    # 5-second cooldown
-    cooldown = 5
-
-    if current_time - st.session_state.last_api_call_time < cooldown:
-        remaining = int(cooldown - (current_time - st.session_state.last_api_call_time))
-        st.warning(f"Please wait {remaining} seconds before trying again.")
-        st.stop()
+    st.session_state.refresh_count = 0
 
     if not job_description:
         st.warning("Please enter a job description.")
@@ -241,11 +248,12 @@ if st.button("Analyze Resume"):
     
     try:
         with st.spinner("Analyzing..."):
-            response = model.generate_content(prompt)
-
-        st.success("Analysis complete!")
-        st.session_state.last_api_call_time = time.time()
-        st.session_state.analysis_result = response.text
+            if enforce_rate_limit():
+                response = model.generate_content(prompt)
+                st.session_state.analysis_result = response.text
+                st.success("Analysis complete!")
+                st.session_state.last_api_call_time = time.time()
+    
     except Exception as e:
         handle_api_error(e, context = "Resume analysis")
 
@@ -299,6 +307,7 @@ if st.session_state.analysis_result:
                 st.session_state.mode = "questions"
                 st.session_state.questions = None
                 st.session_state.learning_plan = None
+                st.session_state.refresh_count = 0
                 st.rerun()
 
     with col_lp:
@@ -307,6 +316,7 @@ if st.session_state.analysis_result:
                 st.session_state.mode = "learning"
                 st.session_state.learning_plan = None
                 st.session_state.questions = None
+                st.session_state.refresh_count = 0
                 st.rerun()
 
     if st.session_state.mode == "questions" and st.session_state.questions is None:
@@ -336,9 +346,9 @@ if st.session_state.analysis_result:
 
         try:
             with st.spinner("Generating questions..."):
-                response_q = model.generate_content(questions_prompt)
-
-            st.session_state.questions = response_q.text
+                if enforce_rate_limit():
+                    response_q = model.generate_content(questions_prompt)
+                    st.session_state.questions = response_q.text
 
         except Exception as e:
             handle_api_error(e, context = "Generating interview questions")
@@ -370,9 +380,9 @@ if st.session_state.analysis_result:
                 st.warning("No missing skills detected. Learning plan not generated.")
             else:
                 with st.spinner("Creating learning plan..."):
-                    response_lp = model.generate_content(lesson_prompt)
-
-                st.session_state.learning_plan = response_lp.text
+                    if enforce_rate_limit():
+                        response_lp = model.generate_content(lesson_prompt)
+                        st.session_state.learning_plan = response_lp.text
 
         except Exception as e:
             handle_api_error(e, context = "Creating learning plan")
@@ -381,12 +391,16 @@ if st.session_state.analysis_result:
     if st.session_state.mode == "questions" and st.session_state.questions:
         st.markdown("<br><br>", unsafe_allow_html = True)
         st.markdown("### Interview Questions")
-        st.caption("Interview questions are tailored to your profile. Click 'Refresh Questions' to explore more variations.")
+        st.caption("Interview questions are tailored to your profile. Click 'Refresh Questions' to explore more variations. You can generate up to 3 variations per session.")
         st.markdown(st.session_state.questions)
 
-        if st.button("Refresh Questions", key = "refresh_q"):
-            st.session_state.questions = None
-            st.rerun()
+        if st.button("Refresh Questions"):
+            if st.session_state.refresh_count >= 3:
+                st.warning("Maximum refresh limit reached!")
+            else:
+                st.session_state.refresh_count = st.session_state.refresh_count + 1
+                st.session_state.questions = None
+                st.rerun()
 
     if st.session_state.mode == "learning" and st.session_state.learning_plan:
         st.markdown("<br><br>", unsafe_allow_html = True)
