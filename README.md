@@ -1,7 +1,7 @@
 # __Resume Reality Check__
-__Last Updated__: May 3, 2026
+__Last Updated__: May 9, 2026
 
-Resume Reality Check is an AI-powered web application that evaluates how well a resume aligns with a specific job description. It analyzes three core sections of the resume, namely summary, experience, and skills, and generates structured insights including match scores, strengths, skill gaps, and actionable suggestions. The system also provides targeted interview questions and a skill-based learning plan, transforming resume feedback from static evaluation into a guided, decision-support experience for job preparation.
+Resume Reality Check is an AI-powered web application that evaluates how well a resume aligns with a specific job description. It analyzes three core sections of the resume, namely summary, experience, and skills, and generates structured insights including match scores, strengths, skill gaps, and actionable suggestions. The system also provides targeted interview questions and a skill-based learning plan, transforming resume feedback from static evaluation into a guided, decision-support experience for job preparation. The system consolidates resume evaluation, skill gap analysis, interview preparation, and learning plan development into a single structured workflow, eliminating the need for repeated chatbot interactions.
 
 To use the application, please begin by entering your resume content into the provided fields. You can paste your professional summary, work experience, and skills into their respective sections. Then, input the job title and paste the full job description of the role that you are targeting. Once all relevant information is entered, click "Analyze Resume" to initiate the evaluation.
 
@@ -14,11 +14,13 @@ This application is designed for students, early-career professionals, and job s
 ## __Problem and Motivation__
 Many job seekers increasingly rely on general-purpose chatbots to evaluate their resumes against job descriptions. However, this process can be repetitive, time-consuming, and inconsistent. Users must repeatedly craft prompts, reformat inputs, and manually interpret unstructured responses for each application.
 
-This project addresses that inefficiency by providing a structured, guided workflow for resume evaluation. Instead of relying on ad-hoc prompting, the system standardizes how inputs are processed and how outputs are generated. This ensures consistency across evaluations and reduces the cognitive overhead to extract actionable insights.
+This project addresses that inefficiency by providing a structured, guided workflow for resume evaluation. Instead of relying on ad-hoc prompting, the system standardizes how inputs are processed and how outputs are generated. This ensures consistency across evaluations, reduces variability in feedback quality, and minimizes the cognitive effort required to extract actionable insights.
 
 By transforming unstructured chatbot interactions into a repeatable pipeline, the application streamlines resume analysis, surfaces relevant skill gaps, and supports targeted preparation through interview questions and learning plans. The result is a more efficient and reliable approach to job preparation for candidates navigating multiple applications. 
 
-While several platforms provide AI-assisted resume feedback, these tools often abstract away how insights are generated. This project focuses on building a transparent, structured pipeline that demonstrates how LLMs can be orchestrated to produce consistent, interpretable, and actionable outputs. 
+While several platforms provide AI-assisted resume feedback, these tools often abstract away how insights are generated. This project demonstrates how a transparent, structured pipeline can be used to orchestrate LLMs to produce consistent, interpretable, and actionable outputs.
+
+This is particularly important because job seekers often evaluate multiple roles simultaneously, and inefficiencies in resume feedback can significantly slow down preparation and reduce the quality of applications. Overall, the system transforms resume evaluation from an unstructured, repetitive task into a consistent and actionable workflow that supports more effective job preparation.
 
 ## __Architecture__
 This application is designed as a multi-stage AI pipeline that combines user input, large language model (LLM) inference, structured data extraction, and interactive visualization within a single Streamlit interface. The system flow is as follows:
