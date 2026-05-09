@@ -226,7 +226,17 @@ if st.button("Analyze Resume"):
     - Score: <number between 0 and 100>
 
     SCORE EXPLANATION:
-    - <bullet points explaining the main factors contributing to the overall score>
+    For each factor, provide:
+
+    - Factor: <clear, concise reason>
+      Impact: <Positive or Negative>
+      Importance: <Low / Moderate / High / Very High>
+
+    Guidelines:
+    - Include 6-8 key factors
+    - Be specific (e.g., "Strong alignment with required Python experience")
+    - Avoid generic statements
+    - Importance reflects how much the factor influenced the overall score
 
     STRENGTHS:
     - <bullet points highlighting what the candidate is doing well>
@@ -277,7 +287,26 @@ if st.session_state.analysis_result:
 
     st.markdown("---")
     st.subheader("Why This Overall Score")
-    st.markdown(parsed["explanation"])
+    explanation_text = parsed["explanation"]
+
+    if explanation_text:
+        lines = explanation_text.split("\n")
+
+        for line in lines:
+            line = line.strip()
+
+            if line.startswith("- Factor:"):
+                st.markdown("<br>", unsafe_allow_html = True)
+                st.markdown(f"**{line}**")
+            elif "Impact: Positive" in line:
+                st.markdown(f"<span style='color:green; font-size:0.9em'>{line}</span>", unsafe_allow_html = True)
+            elif "Impact: Negative" in line:
+                st.markdown(f"<span style='color:red; font-size:0.9em'>{line}</span>", unsafe_allow_html = True)
+            elif "Importance:" in line:
+                st.markdown(f"<span style='font-size:0.9em; font-style:italic'>{line}</span>", unsafe_allow_html = True)
+            else:
+                st.markdown(line)
+            
 
     st.markdown("---")
     st.subheader("Strengths")
@@ -297,7 +326,7 @@ if st.session_state.analysis_result:
 
 
 if st.session_state.analysis_result:
-    st.markdown("---")
+    st.markdown("<br><br>", unsafe_allow_html = True)
     st.markdown("### Next Steps")
     col_q, col_lp = st.columns(2)
 
@@ -305,18 +334,12 @@ if st.session_state.analysis_result:
         if st.session_state.mode != "questions":
             if st.button("Generate Interview Questions", key = "gen_q"):
                 st.session_state.mode = "questions"
-                st.session_state.questions = None
-                st.session_state.learning_plan = None
-                st.session_state.refresh_count = 0
                 st.rerun()
 
     with col_lp:
         if st.session_state.mode != "learning":
             if st.button("Make Lesson Plan", key = "gen_lp"):
                 st.session_state.mode = "learning"
-                st.session_state.learning_plan = None
-                st.session_state.questions = None
-                st.session_state.refresh_count = 0
                 st.rerun()
 
     if st.session_state.mode == "questions" and st.session_state.questions is None:
