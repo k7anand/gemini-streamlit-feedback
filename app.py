@@ -32,6 +32,9 @@ def parse_analysis(text: str) -> dict:
 
     explanation = re.search(r"SCORE EXPLANATION:\s*(.*?)STRENGTHS:", text, re.S)
     results["explanation"] = explanation.group(1).strip() if explanation else ""
+    
+    if not explanation:
+        results["explanation"] = text 
 
     return results
 
@@ -84,7 +87,27 @@ if "refresh_count" not in st.session_state:
     st.session_state.refresh_count = 0
 
 
+def generate_with_retry(model, prompt, retries = 3, delay = 2):
+    """Performs model inference with retry logic to improve robustness against transient
+    errors while skipping retries for rate limit failures."""
+    for attempt in range(retries):
+        try:
+            return model.generate_content(prompt)
+        except Exception as e:
+            error_str = str(e).lower()
+
+            if "429" in error_str or "quota" in error_str:
+                raise e # do not retry rate limits
+
+            if attempt < retries - 1:
+                time.sleep(delay)
+            else:
+                raise e
+
+
 def enforce_rate_limit():
+    """Enforces a minimum time interval between API requests to prevent excessive usage,
+    ensuring compliance with rate limits and improving system stability."""
     now = time.time()
     last = st.session_state.get("last_api_call_time", 0)
 
@@ -98,7 +121,16 @@ def enforce_rate_limit():
 
 # Load environment variables:
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+
+try:
+    api_key = st.secrets.get("GEMINI_API_KEY")
+except Exception:
+    api_key = os.getenv("GEMINI_API_KEY")
+
+
+if not api_key:
+    st.error("API key was not found. Please check your .env file.")
+    st.stop()
 
 
 col_title, col_reset = st.columns([6, 1])
@@ -109,7 +141,17 @@ with col_title:
 
 with col_reset:
     if st.button("Restart"):
-        st.session_state.clear()
+        for key in [
+            "analysis_result", "questions", "learning_plan", "mode", "refresh_count",
+            "summary_input", "experience_input", "skills_input", "job_title_input", "job_description_input"
+        ]:
+            st.session_state.pop(key, None)
+
+        st.session_state["summary_input"] = ""
+        st.session_state["experience_input"] = ""
+        st.session_state["skills_input"] = ""
+        st.session_state["job_title_input"] = ""
+        st.session_state["job_description_input"] = ""
         st.rerun()
 
 if "accepted_terms" not in st.session_state:
@@ -133,11 +175,6 @@ if not st.session_state.accepted_terms:
     st.stop()
 
 
-if not api_key:
-    st.error("API key was not found. Please check your .env file.")
-    st.stop()
-
-
 # Configure Gemini:
 if "model" not in st.session_state:
     genai.configure(api_key = api_key)
@@ -147,11 +184,11 @@ model = st.session_state.model
 
 
 # User inputs:
-summary = st.text_area("Summary", placeholder = "Provide brief summary about your background.")
-experience = st.text_area("Experience", placeholder = "Paste your work experience bullet points.")
-skills = st.text_area("Skills", placeholder = "Please list your technical and soft skills.")
-job_title = st.text_input("Job Title")
-job_description = st.text_area("Job Description", placeholder = "Paste the full job description here.")
+summary = st.text_area("Summary", key = "summary_input", placeholder = "Provide brief summary about your background.")
+experience = st.text_area("Experience", key = "experience_input", placeholder = "Paste your work experience bullet points.")
+skills = st.text_area("Skills", key = "skills_input", placeholder = "Please list your technical and soft skills.")
+job_title = st.text_input("Job Title", key = "job_title_input", placeholder = "Paste the job title here.")
+job_description = st.text_area("Job Description", key = "job_description_input", placeholder = "Paste the full job description here.")
 job_information = f"{job_title}\n{job_description}"
 
 # Analyze Resume Button:
@@ -228,15 +265,18 @@ if st.button("Analyze Resume"):
     SCORE EXPLANATION:
     For each factor, provide:
 
-    - Factor: <clear, concise reason>
+    - Factor: <specific, evidence-based reason referencing the candidate’s background and job requirements>
       Impact: <Positive or Negative>
       Importance: <Low / Moderate / High / Very High>
 
     Guidelines:
-    - Include 6-8 key factors
-    - Be specific (e.g., "Strong alignment with required Python experience")
-    - Avoid generic statements
-    - Importance reflects how much the factor influenced the overall score
+    - Include 6-8 key factors with diversified levels of importance but Factors MUST be listed in descending order of importance from Very High to Low.
+    - Each factor MUST reference specific skills, experience, or requirements from the input
+    - Each factor should clearly connect a candidate attribute to a specific job requirement
+    - At least 2 factors MUST highlight clear mismatches or weaknesses when present.
+    - Avoid vague statements like "strong background" or "good experience"
+    - Be explicit about what matches or does not match (e.g., "Experience with SQL aligns with job requirement for data querying")
+    - Importance should reflect how much the factor influenced the overall score
 
     STRENGTHS:
     - <bullet points highlighting what the candidate is doing well>
@@ -259,7 +299,7 @@ if st.button("Analyze Resume"):
     try:
         with st.spinner("Analyzing..."):
             if enforce_rate_limit():
-                response = model.generate_content(prompt)
+                response = generate_with_retry(model, prompt)
                 st.session_state.analysis_result = response.text
                 st.success("Analysis complete!")
                 st.session_state.last_api_call_time = time.time()
@@ -370,7 +410,7 @@ if st.session_state.analysis_result:
         try:
             with st.spinner("Generating questions..."):
                 if enforce_rate_limit():
-                    response_q = model.generate_content(questions_prompt)
+                    response_q = generate_with_retry(model, questions_prompt)
                     st.session_state.questions = response_q.text
 
         except Exception as e:
@@ -400,11 +440,11 @@ if st.session_state.analysis_result:
 
         try:
             if not parsed["missing"].strip():
-                st.warning("No missing skills detected. Learning plan not generated.")
+                st.warning("No missing skills detected. Thus, learning plan will not be generated.")
             else:
                 with st.spinner("Creating learning plan..."):
                     if enforce_rate_limit():
-                        response_lp = model.generate_content(lesson_prompt)
+                        response_lp = generate_with_retry(model, lesson_prompt)
                         st.session_state.learning_plan = response_lp.text
 
         except Exception as e:
@@ -416,6 +456,12 @@ if st.session_state.analysis_result:
         st.markdown("### Interview Questions")
         st.caption("Interview questions are tailored to your profile. Click 'Refresh Questions' to explore more variations. You can generate up to 3 variations per session.")
         st.markdown(st.session_state.questions)
+        remaining = 3 - st.session_state.refresh_count
+
+        if remaining > 0:
+            st.caption(f"Refreshes remaining: {remaining}")
+        else:
+            st.caption("No refreshes remaining")
 
         if st.button("Refresh Questions"):
             if st.session_state.refresh_count >= 3:
