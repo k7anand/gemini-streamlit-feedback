@@ -1,9 +1,20 @@
 # __Resume Reality Check__
-__Last Updated__: May 9, 2026
+__Last Updated__: May 10, 2026
 
-*Try the app here*: https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/
+*Try the app here*: [Resume Reality Check](https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/)
 
-Resume Reality Check is an AI-powered web application that evaluates how well a resume aligns with a specific job description. It analyzes three core sections of the resume, namely summary, experience, and skills, and generates structured insights including match scores, strengths, skill gaps, and actionable suggestions. The system also provides targeted interview questions and a skill-based learning plan, transforming resume feedback from static evaluation into a guided, decision-support experience for job preparation. The system consolidates resume evaluation, skill gap analysis, interview preparation, and learning plan development into a single structured workflow, eliminating the need for repeated chatbot interactions.
+## __Key Features__
+
+- Structured resume-to-job evaluation with section-level and overall match scores.
+- Explainable AI outputs with evidence-based reasoning and ranked importance.  
+- Tailored interview question generation with controlled refresh limits.  
+- Skill gap identification with personalized learning plans.  
+- Stateful, multi-step workflow within a single interactive interface. 
+
+## __Introduction__
+Resume Reality Check is an AI-powered web application that evaluates how well a resume aligns with a specific job description. It analyzes three core sections of the resume, namely summary, experience, and skills, and generates structured insights including match scores, strengths, skill gaps, and actionable suggestions. 
+
+The system also provides targeted interview questions and a skill-based learning plan, transforming resume feedback from static evaluation into a guided, decision-support experience for job preparation. The system consolidates resume evaluation, skill gap analysis, interview preparation, and learning plan development into a single structured workflow, eliminating the need for repeated chatbot interactions.
 
 To use the application, please begin by entering your resume content into the provided fields. You can paste your professional summary, work experience, and skills into their respective sections. Then, input the job title and paste the full job description of the role that you are targeting. Once all relevant information is entered, click "Analyze Resume" to initiate the evaluation.
 
@@ -11,7 +22,9 @@ After analysis, the application displays a structured breakdown of your match wi
 
 Users can then proceed to the _Next Steps_ section to deepen their preparation. The "Generate Interview Questions" feature produces tailored technical and behavioral questions based on your profile and the job requirements. The "Make Lesson Plan" feature creates a structured learning roadmap based on identified skill gaps, outlining what to learn, how to learn it, and a small project idea to apply each skill.
 
-This application is designed for students, early-career professionals, and job seekers looking to better understand how their experience aligns with specific roles and how to improve their positioning.
+To ensure fair usage and maintain system responsiveness, interview question generation includes a limited refresh mechanism. Users can regenerate interview questions up to 3 times per session, allowing for variation in outputs while preventing excessive API usage. This design balances flexibility with responsible resource management.
+
+This application is designed for students, early-career professionals, and job seekers who want to better understand how their experience aligns with specific roles and how to improve their positioning.
 
 ## __Problem and Motivation__
 Many job seekers increasingly rely on general-purpose chatbots to evaluate their resumes against job descriptions. However, this process can be repetitive, time-consuming, and inconsistent. Users must repeatedly craft prompts, reformat inputs, and manually interpret unstructured responses for each application.
