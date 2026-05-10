@@ -1,6 +1,8 @@
 # __Resume Reality Check__
 __Last Updated__: May 9, 2026
 
+*Try the app here*: https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/
+
 Resume Reality Check is an AI-powered web application that evaluates how well a resume aligns with a specific job description. It analyzes three core sections of the resume, namely summary, experience, and skills, and generates structured insights including match scores, strengths, skill gaps, and actionable suggestions. The system also provides targeted interview questions and a skill-based learning plan, transforming resume feedback from static evaluation into a guided, decision-support experience for job preparation. The system consolidates resume evaluation, skill gap analysis, interview preparation, and learning plan development into a single structured workflow, eliminating the need for repeated chatbot interactions.
 
 To use the application, please begin by entering your resume content into the provided fields. You can paste your professional summary, work experience, and skills into their respective sections. Then, input the job title and paste the full job description of the role that you are targeting. Once all relevant information is entered, click "Analyze Resume" to initiate the evaluation.
