@@ -1,7 +1,11 @@
 # __Resume Reality Check__
-__Last Updated__: May 10, 2026
+__Last Updated__: May 12, 2026
 
 *Try the app here*: [Resume Reality Check](https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/)
+
+__User Responsibility__: Users are responsible for reviewing and verifying all outputs before using them in a job application.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## __Key Features__
 
@@ -33,7 +37,7 @@ This project addresses that inefficiency by providing a structured, guided workf
 
 By transforming unstructured chatbot interactions into a repeatable pipeline, the application streamlines resume analysis, surfaces relevant skill gaps, and supports targeted preparation through interview questions and learning plans. The result is a more efficient and reliable approach to job preparation for candidates navigating multiple applications. 
 
-While several platforms provide AI-assisted resume feedback, these tools often abstract away how insights are generated. This project demonstrates how a transparent, structured pipeline can be used to orchestrate LLMs to produce consistent, interpretable, and actionable outputs.
+While many AI-assisted resume evaluation tools are available, Resume Reality Check specifically focuses on how feedback is structured and presented. This application specifically demonstrates how a transparent, pipeline-driven approach can be used to orchestrate LLMs to produce consistent, interpretable, and actionable outputs. 
 
 This is particularly important because job seekers often evaluate multiple roles simultaneously, and inefficiencies in resume feedback can significantly slow down preparation and reduce the quality of applications. Overall, the system transforms resume evaluation from an unstructured, repetitive task into a consistent and actionable workflow that supports more effective job preparation.
 
@@ -64,6 +68,7 @@ This application is designed as a multi-stage AI pipeline that combines user inp
 - This application does not store or persist user data. All inputs provided by the user, including resume content and job descriptions, are processed in real time and are not saved after the session ends.
 - User inputs are sent to the Google Gemini API for analysis. This means that the data is transmitted to an external AI service for processing. You should avoid entering highly sensitive personal information.
 - The application includes a Terms of Use acknowledgment step before interaction, ensuring that you are aware of how your data is handled. By using the application, you agree to this processing behavior.
+- This application provides informational guidance only and does not guarantee job outcomes or hiring decisions. 
 - __Important Note__: No user data is logged, stored, or used for model training within this application.
 
 ## __Running the Application Locally__
