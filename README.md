@@ -1,7 +1,8 @@
 # __Resume Reality Check__
-__Last Updated__: May 12, 2026
+__Last Updated__: May 16, 2026
 
 *Try the app here*: [Resume Reality Check](https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/)
+__Note on App Availability__: This application is hosted on Streamlit Community Cloud. If the app has been inactive for a period of time, it may take a few minutes to start when you first open it. Please allow the app to fully load before interacting.  
 
 __User Responsibility__: Users are responsible for reviewing and verifying all outputs before using them in a job application.
 
@@ -63,6 +64,9 @@ This application is designed as a multi-stage AI pipeline that combines user inp
 - The application uses structured prompting combined with regex-based parsing instead of fully-structured JSON outputs. This approach simplifies prompt design and maintains flexibility in LLM responses, but introduces some sensitivity to formatting inconsistencies.
 - The system is designed for interactive, single-user workflows within Streamlit rather than large-scale deployment. This enables fast iteration and a responsive user experience, but is not optimized for high-concurrency production environments.
 - Finally, the application operates on the free tier of the Google Gemini API, which imposes limits on the number of requests per day and per minute. To ensure fair usage and prevent errors, the system includes rate-limiting logic and lightweight request control. This design keeps the application accessible without requiring paid infrastructure, but may temporarily restrict usage during high-frequency interactions.
+
+## __Deployment__
+This application is deployed using Streamlit Community Cloud, which provides a lightweight and interactive environment for hosting data-driven web applications. Streamlit was chosen to support a stateful, multi-step user experience within a single interface, allowing users to move seamlessly between resume evaluation, interview preparation, and learning plan generation without navigating across multiple pages. Streamlit Community Cloud enables rapid deployment and iteration, making it well-suited for prototyping and user-facing applications that prioritize usability and responsiveness. This deployment approach aligns with the design goals of this project, focusing on accessibility, ease of use, and a guided workflow experience.
 
 ## __Data Usage and Privacy__
 - This application does not store or persist user data. All inputs provided by the user, including resume content and job descriptions, are processed in real time and are not saved after the session ends.
