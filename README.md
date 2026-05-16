@@ -2,6 +2,7 @@
 __Last Updated__: May 16, 2026
 
 *Try the app here*: [Resume Reality Check](https://gemini-app-feedback-dbt7fton4mez79shselvyh.streamlit.app/)
+
 __Note on App Availability__: This application is hosted on Streamlit Community Cloud. If the app has been inactive for a period of time, it may take a few minutes to start when you first open it. Please allow the app to fully load before interacting.  
 
 __User Responsibility__: Users are responsible for reviewing and verifying all outputs before using them in a job application.
